@@ -27,8 +27,8 @@
      }
     }
   },
-  "train_data_path": "/kaggle/input/eng.train",
-  "validation_data_path": "/kaggle/input/eng.testa",
+  "train_data_path": "/kaggle/input/medical/AnEM.train.txt",
+  "validation_data_path": "/kaggle/input/medical/AnEM.test.txt",
   "model": {
     "type": "crf_tagger",
     "label_encoding": "BIOUL",
@@ -84,7 +84,7 @@
   },
   "iterator": {
     "type": "basic",
-    "batch_size": 64
+    "batch_size": 32
   },
   "trainer": {
     "optimizer": {
@@ -93,7 +93,7 @@
     },
     "validation_metric": "+f1-measure-overall",
     "num_serialized_models_to_keep": 3,
-    "num_epochs": 75,
+    "num_epochs": 10,
     "grad_norm": 5.0,
     "patience": 25,
     "cuda_device": 0
