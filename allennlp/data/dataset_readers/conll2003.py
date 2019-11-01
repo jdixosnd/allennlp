@@ -116,75 +116,28 @@ class Conll2003DatasetReader(DatasetReader):
                     fields = [line.strip().split() for line in lines]
                     # unzipping trick returns tuples, but our Fields need lists
                     fields = [list(field) for field in zip(*fields)]
-                    tokens_, pos_tags, chunk_tags, ner_tags = fields
+                    tokens_, ner_tags = fields
                     # TextField requires ``Token`` objects
                     tokens = [Token(token) for token in tokens_]
 
-                    yield self.text_to_instance(tokens, pos_tags, chunk_tags, ner_tags)
+                    yield self.text_to_instance(tokens, ner_tags)
 
-    def text_to_instance(  # type: ignore
-        self,
-        tokens: List[Token],
-        pos_tags: List[str] = None,
-        chunk_tags: List[str] = None,
-        ner_tags: List[str] = None,
-    ) -> Instance:
+    def text_to_instance(self, # type: ignore
+                         tokens: List[Token],
+                         ner_tags: List[str] = None) -> Instance:
         """
         We take `pre-tokenized` input here, because we don't have a tokenizer in this class.
         """
-
+        # pylint: disable=arguments-differ
         sequence = TextField(tokens, self._token_indexers)
-        instance_fields: Dict[str, Field] = {"tokens": sequence}
+        instance_fields: Dict[str, Field] = {'tokens': sequence}
         instance_fields["metadata"] = MetadataField({"words": [x.text for x in tokens]})
-
-        # Recode the labels if necessary.
-        if self.coding_scheme == "BIOUL":
-            coded_chunks = (
-                to_bioul(chunk_tags, encoding=self._original_coding_scheme)
-                if chunk_tags is not None
-                else None
-            )
-            coded_ner = (
-                to_bioul(ner_tags, encoding=self._original_coding_scheme)
-                if ner_tags is not None
-                else None
-            )
-        else:
-            # the default IOB1
-            coded_chunks = chunk_tags
-            coded_ner = ner_tags
-
-        # Add "feature labels" to instance
-        if "pos" in self.feature_labels:
-            if pos_tags is None:
-                raise ConfigurationError(
-                    "Dataset reader was specified to use pos_tags as "
-                    "features. Pass them to text_to_instance."
-                )
-            instance_fields["pos_tags"] = SequenceLabelField(pos_tags, sequence, "pos_tags")
-        if "chunk" in self.feature_labels:
-            if coded_chunks is None:
-                raise ConfigurationError(
-                    "Dataset reader was specified to use chunk tags as "
-                    "features. Pass them to text_to_instance."
-                )
-            instance_fields["chunk_tags"] = SequenceLabelField(coded_chunks, sequence, "chunk_tags")
-        if "ner" in self.feature_labels:
+        coded_ner = ner_tags
+        if 'ner' in self.feature_labels:
             if coded_ner is None:
-                raise ConfigurationError(
-                    "Dataset reader was specified to use NER tags as "
-                    " features. Pass them to text_to_instance."
-                )
-            instance_fields["ner_tags"] = SequenceLabelField(coded_ner, sequence, "ner_tags")
-
-        # Add "tag label" to instance
-        if self.tag_label == "ner" and coded_ner is not None:
-            instance_fields["tags"] = SequenceLabelField(coded_ner, sequence, self.label_namespace)
-        elif self.tag_label == "pos" and pos_tags is not None:
-            instance_fields["tags"] = SequenceLabelField(pos_tags, sequence, self.label_namespace)
-        elif self.tag_label == "chunk" and coded_chunks is not None:
-            instance_fields["tags"] = SequenceLabelField(
-                coded_chunks, sequence, self.label_namespace
-            )
-
+                raise ConfigurationError("Dataset reader was specified to use NER tags as "
+                                         " features. Pass them to text_to_instance.")
+            instance_fields['ner_tags'] = SequenceLabelField(coded_ner, sequence, "ner_tags")
+        if self.tag_label == 'ner' and coded_ner is not None:
+            instance_fields['tags'] = SequenceLabelField(coded_ner, sequence,self.label_namespace)
         return Instance(instance_fields)
