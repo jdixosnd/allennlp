@@ -27,8 +27,8 @@
      }
     }
   },
-  "train_data_path": "/kaggle/input/medical1/AnEM.train.txt",
-  "validation_data_path": "/kaggle/input/medical1/AnEM.test.txt",
+  "train_data_path": "/kaggle/input/effective-date/effective_date_train.bio",
+  "validation_data_path": "/kaggle/input/effective-date/effective_date_test.bio",
   "model": {
     "type": "crf_tagger",
     "label_encoding": "BIOUL",
