@@ -12,7 +12,7 @@
   "dataset_reader": {
     "type": "conll2003",
     "tag_label": "ner",
-    "coding_scheme": "BIOUL",
+    "coding_scheme": "IOB1",
     "token_indexers": {
       "tokens": {
         "type": "single_id",
@@ -31,7 +31,7 @@
   "validation_data_path": "/kaggle/input/effectivedate/effective_date_test.bio",
   "model": {
     "type": "crf_tagger",
-    "label_encoding": "BIOUL",
+    "label_encoding": "IOB1",
     "dropout": 0.5,
     "include_start_end_transitions": false,
     "text_field_embedder": {
